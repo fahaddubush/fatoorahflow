@@ -35,8 +35,6 @@ export interface InfiniteFooterProps {
   reduceMotion?: boolean;
   loop?: boolean;
   scrollToTop?: () => void;
-  onLoopStart?: () => void;
-  onLoopEnd?: () => void;
   onLoop?: () => void;
   className?: string;
 }
@@ -109,7 +107,7 @@ function Letter({ ch, i, e, italic }: { ch: string; i: number; e: MotionValue<nu
 
 /* ------------------------------------------------------------------ main ------------------------------------------------------------------ */
 
-export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrollToTop, onLoopStart, onLoopEnd, onLoop, className }: InfiniteFooterProps) {
+export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrollToTop, onLoop, className }: InfiniteFooterProps) {
   const system = useReducedMotion();
   const reduce = reduceMotion ?? Boolean(system);
   const t = (en: string, ar: string) => (isRtl ? ar : en);
@@ -152,51 +150,16 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
 
   const startLoop = useCallback(async (manual = false) => {
     if (busy.current) return;
-    busy.current = true;
-    setLooping(true);
-    onLoopStart?.();
-
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    html.style.overflow = 'hidden';
-    body.style.overflow = 'hidden';
-
-    // Trap & absorb ongoing scroll gestures so the landing page isn't pre-scrolled
-    const preventScroll = (e: Event) => {
-      e.preventDefault();
-    };
-    const preventScrollKeys = (e: KeyboardEvent) => {
-      if (['ArrowDown', 'ArrowUp', 'Space', 'PageDown', 'PageUp', 'Home', 'End'].includes(e.code)) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('wheel', preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-    window.addEventListener('keydown', preventScrollKeys, { passive: false });
-
+    busy.current = true; setLooping(true);
+    const html = document.documentElement, prev = html.style.overflow; html.style.overflow = 'hidden';
     await animate(cover, 1, { duration: manual ? 0.6 : 0.18, ease: 'easeIn' });
     if (scrollToTop) scrollToTop(); else window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     onLoop?.();
     await new Promise((r) => window.setTimeout(r, 140));
     await animate(hole, 1, { duration: 1.75, ease: [0.65, 0, 0.35, 1] });
-
-    // Slack grace period: hold strictly at top for 360ms after hole expansion so trailing momentum is completely dead
-    await new Promise((r) => window.setTimeout(r, 360));
-    if (scrollToTop) scrollToTop(); else window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
-
-    window.removeEventListener('wheel', preventScroll);
-    window.removeEventListener('touchmove', preventScroll);
-    window.removeEventListener('keydown', preventScrollKeys);
-    html.style.overflow = prevHtmlOverflow;
-    body.style.overflow = prevBodyOverflow;
-    hole.set(0);
-    cover.set(0);
-    setLooping(false);
-    onLoopEnd?.();
-    window.setTimeout(() => { busy.current = false; }, 800);
-  }, [cover, hole, scrollToTop, onLoop, onLoopStart, onLoopEnd]);
+    hole.set(0); cover.set(0); html.style.overflow = prev; setLooping(false);
+    window.setTimeout(() => { busy.current = false; }, 900);
+  }, [cover, hole, scrollToTop, onLoop]);
 
   useEffect(() => {
     if (!loop || reduce) return;

@@ -398,23 +398,11 @@ export const App: React.FC = () => {
           isRtl={isRtl}
           reduceMotion={settings.motion !== 'full' || view !== 'dashboard'}
           loop={view === 'dashboard'}
-          onLoopStart={() => {
-            if (lenisRef.current) {
-              lenisRef.current.stop();
-              lenisRef.current.scrollTo(0, { immediate: true });
-            }
-          }}
           scrollToTop={() => {
             if (lenisRef.current) {
               lenisRef.current.scrollTo(0, { immediate: true });
             } else {
               window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
-            }
-          }}
-          onLoopEnd={() => {
-            if (lenisRef.current) {
-              lenisRef.current.scrollTo(0, { immediate: true });
-              lenisRef.current.start();
             }
           }}
         />
