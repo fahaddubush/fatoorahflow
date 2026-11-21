@@ -188,7 +188,7 @@ export default function IngestMachine({ phase, filename = '', lcd = ['READY', 'F
     scene.environmentIntensity = 0.55;
 
     const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 80);
-    const target = new THREE.Vector3(0.1, 3.0, 2.2);
+    const target = new THREE.Vector3(0.1, 3.7, 1.8);
 
     // ---- lights ----
     const key = new THREE.DirectionalLight(0xfff0d6, 2.4);
@@ -522,7 +522,7 @@ export default function IngestMachine({ phase, filename = '', lcd = ['READY', 'F
       machine.rotation.z = Math.sin(t * 47) * 0.0012 * motionAmt * load;
 
       // sheet in: hovers above the slot until fed, then is pulled down into it (scroll-linked units sink it as you scroll)
-      const yStart = TOP + SHEET_H / 2 + 0.75, yEnd = TOP - 0.55 - SHEET_H / 2;
+      const yStart = TOP + SHEET_H / 2 + 0.35, yEnd = TOP - 0.55 - SHEET_H / 2;
       const bob = st.phase === 'idle' ? Math.sin(t * 1.5) * 0.08 : 0;
       let pInEff = st.pIn;
       if (props.current.scrollLinked && st.phase === 'idle') { const rr = el.getBoundingClientRect(); scrollP = clamp01(1 - rr.top / window.innerHeight); pInEff = 0.5 * scrollP; }
@@ -606,7 +606,7 @@ export default function IngestMachine({ phase, filename = '', lcd = ['READY', 'F
       pointer.x += (pointer.tx - pointer.x) * Math.min(1, dt * 3); pointer.y += (pointer.ty - pointer.y) * Math.min(1, dt * 3);
       const fit = Math.max(1, 1.2 / aspect);
       const ang = -0.62 + pointer.x * 0.13 + Math.sin(t * 0.25) * 0.03 + (props.current.scrollLinked ? (scrollP - 0.5) * 0.8 : 0);
-      const dist = 28 * fit, h = 10.2 + pointer.y * -0.9 + (fit - 1) * 3;
+      const dist = 30 * fit, h = 10.6 + pointer.y * -0.9 + (fit - 1) * 3;
       camera.position.set(target.x + Math.sin(ang) * dist * 0.62, h, target.z + Math.cos(ang) * dist);
       camera.lookAt(target);
       const mv = new THREE.Vector3(0, 2, 0).project(camera); sound.machine(motionAmt, mv.x * 0.8);

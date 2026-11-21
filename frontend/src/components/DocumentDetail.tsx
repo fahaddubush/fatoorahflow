@@ -227,16 +227,24 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
         <div className="flex items-center justify-between gap-2">
           <span className="label">{field.label}{lowConf && <span className="ms-2 text-manila-shade" title={t('Low extraction confidence. Open the evidence to confirm.', 'ثقة الاستخراج منخفضة. افتح الدليل للتأكد.')}>~{Math.round((conf as number) * 100)}% {t('unverified', 'غير مؤكد')}</span>}</span>
           <span className="flex items-center gap-3">
-          <button type="button" data-cursor="pen" onClick={() => openNote(field.path)} aria-label={`${t('Add note to', 'إضافة ملاحظة إلى')} ${field.label}`}
-            className="inline-flex items-center font-mono text-[10px] caps tracking-label text-ink-mute opacity-70 transition hover:text-carbon group-hover:opacity-100">{notes[field.path] ? t('Edit note', 'تعديل الملاحظة') : t('Note', 'ملاحظة')}</button>
+          <button type="button" data-cursor="pen" onClick={() => openNote(field.path)}
+            title={notes[field.path] ? `${t('Edit note for', 'تعديل ملاحظة')} ${field.label}` : `${t('Add note to', 'إضافة ملاحظة إلى')} ${field.label}`}
+            aria-label={notes[field.path] ? `${t('Edit note for', 'تعديل ملاحظة')} ${field.label}` : `${t('Add note to', 'إضافة ملاحظة إلى')} ${field.label}`}
+            className="inline-flex items-center font-mono text-[10px] caps tracking-label text-ink-mute opacity-70 transition hover:text-carbon group-hover:opacity-100"
+          >
+            <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M3 2.5h7l3 3V13.5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1z" />
+              <path d="M10 2.5v3h3" />
+              <path d="M5 8.5h6M5 11h4" />
+            </svg>
+          </button>
           {canReview && (
             <button data-cursor="pen"
               type="button" title={`${t('Correct', 'تصحيح')} ${field.label}`} aria-label={`${t('Correct', 'تصحيح')} ${field.label}`}
               onClick={() => startEdit(field)} disabled={working || refreshRequired}
-              className="inline-flex items-center gap-1 font-mono text-[10px] caps tracking-label text-ink-mute opacity-70 transition hover:text-stamp group-hover:opacity-100 disabled:opacity-30"
+              className="inline-flex items-center font-mono text-[10px] caps tracking-label text-ink-mute opacity-70 transition hover:text-stamp group-hover:opacity-100 disabled:opacity-30"
             >
               <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden><path d="M2.5 13.5l.6-3L11 2.6a1.4 1.4 0 0 1 2 2L5.1 12.5z" strokeLinejoin="round" /></svg>
-              <span className="hidden sm:inline">{t('Correct', 'تصحيح')}</span>
             </button>
           )}
           </span>
@@ -354,8 +362,6 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
           <h2 className="break-words font-display text-[clamp(36px,5vw,64px)] leading-[.95]"><bdi>{doc.filename}</bdi></h2>
           <p className="mt-3 flex flex-wrap items-center gap-3">
             <StatusStamp status={doc.status} isRtl={isRtl} />
-            {revisionNo !== undefined && <span className="font-mono text-[11px] text-ink-mute">Rev #{revisionNo}</span>}
-            {doc.policy_version && <span className="font-mono text-[11px] text-ink-mute">{t('Policy', 'السياسة')} {doc.policy_version}</span>}
           </p>
         </div>
         <button type="button" onClick={openAudit} className="btn-line">{t('Audit Trail', 'سجل التدقيق')}</button>

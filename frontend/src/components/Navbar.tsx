@@ -35,16 +35,10 @@ export const Navbar: React.FC<NavbarProps> = ({ isRtl, onToggleLanguage, onNewUp
             <span className="block font-display text-[26px] leading-[.9] text-ink">
               {isRtl ? <span className="font-display">فاتورة فلو</span> : <>Fatoorah<i className="ms-[2px]">Flow</i></>}
             </span>
-            <span className="label mt-1 hidden sm:block">{t('Saudi invoice intelligence', 'ذكاء الفواتير السعودية')}</span>
           </span>
         </button>
 
         <div className="flex items-center gap-3 sm:gap-5">
-          <div className="hidden items-center gap-2 lg:flex" title={t('Local engine online', 'المحرك المحلي متصل')}>
-            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ledger opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-ledger" /></span>
-            <span className="label">{t('Engine online', 'المحرك متصل')}</span>
-          </div>
-          <span className="hidden border border-dashed border-ink/35 px-2 py-1 font-mono text-[10.5px] text-ink-soft md:inline-block" dir="ltr">tenant-demo-01</span>
 
           <div className="flex items-center gap-1">
             <button type="button" onClick={onToggleSound} aria-pressed={soundOn} aria-label={t('Sound effects', 'المؤثرات الصوتية')} title={t(soundOn ? 'Sound on' : 'Sound off', soundOn ? 'الصوت مفعّل' : 'الصوت مُعطّل')}

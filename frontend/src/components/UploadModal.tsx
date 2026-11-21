@@ -133,8 +133,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpl
               <div className="edge-zig-bottom bg-paper px-7 pb-14 pt-7 shadow-sheet" style={{ filter: 'drop-shadow(0 26px 30px rgba(60,42,12,.28))' }}>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="label">{t('Intake slip', 'قسيمة الاستلام')} · 01</p>
-                    <h3 id="upload-title" className="mt-2 font-display text-[40px] leading-[.95]">{t('Upload tax invoices', 'رفع فواتير ضريبية')}</h3>
+                    <h3 id="upload-title" className="font-display text-[40px] leading-[.95]">{t('Upload tax invoices', 'رفع فواتير ضريبية')}</h3>
                   </div>
                   <button type="button" onClick={onClose} disabled={isUploading} aria-label={t('Close upload', 'إغلاق نافذة الرفع')}
                     className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/25 transition hover:rotate-90 hover:border-ink hover:bg-inkbg hover:text-onink disabled:opacity-30">
@@ -153,7 +152,6 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpl
                   ))}
                   <p className="font-display text-[26px] leading-tight">{dragOver ? t('Release to load', 'أفلت للتحميل') : t('Drop PDFs here', 'أفلت ملفات PDF هنا')}</p>
                   <p className="mt-2 text-[13px] text-ink-soft">{t('or click to choose one or several files', 'أو اضغط لاختيار ملف أو عدة ملفات')}</p>
-                  <p className="label mt-4">{t('PDF with selectable text · up to 25 MiB · 20 pages', 'PDF نصي حتى 25 ميبيبايت و20 صفحة')}</p>
                 </button>
                 <input type="file" multiple ref={fileInputRef} onChange={handleFileChange} accept=".pdf,application/pdf" disabled={isUploading} className="hidden" aria-label={t('Choose invoice PDFs', 'اختر ملفات الفواتير')} />
 

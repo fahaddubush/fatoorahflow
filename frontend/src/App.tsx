@@ -263,10 +263,9 @@ export const App: React.FC = () => {
             )}
             {view === 'dashboard' && (
               <motion.div key="dashboard" {...pageMotion} className="space-y-16 sm:space-y-24">
-                <section className="grid items-center gap-12 lg:grid-cols-[1.5fr_1fr]">
+                <section className="relative z-20 grid items-center gap-12 lg:grid-cols-[1.5fr_1fr]">
                   <motion.div style={{ y: heroY }}>
-                    <p className="label flex items-center gap-3"><span className="h-px w-8 bg-ink/60" />{t('Bilingual tax-invoice review · KSA', 'مراجعة الفواتير الضريبية الثنائية · المملكة')}</p>
-                    <h1 className="mt-6 font-display text-[clamp(52px,9vw,132px)] leading-[.9] tracking-[-0.02em]">
+                    <h1 className="font-display text-[clamp(52px,9vw,132px)] leading-[.9] tracking-[-0.02em]">
                       {isRtl ? (
                         <>
                           <Rise delay={0.15}>كل فاتورة،</Rise><br />
@@ -294,12 +293,12 @@ export const App: React.FC = () => {
                       </button>
                     </div>
                   </motion.div>
-                  <motion.div style={{ y: receiptY, rotate: receiptRot, scale: receiptScale }}>
+                  <motion.div className="relative z-20" style={{ y: receiptY, rotate: receiptRot, scale: receiptScale }}>
                     <OverviewStats analytics={analytics} isRtl={isRtl} activeFilter={activeFilter} onFilter={showArchive} />
                   </motion.div>
                 </section>
 
-                <div className="-mx-4 border-y border-ink/80 py-5 sm:-mx-8" aria-hidden>
+                <div className="relative z-10 -mx-4 border-y border-ink/80 py-5 sm:-mx-8" aria-hidden>
                   <Marquee reverse={isRtl} items={['Tax invoice', 'فاتورة ضريبية', 'VAT 15%', 'ضريبة القيمة المضافة', 'Line by line', 'سطر بسطر', 'Evidence on the page', 'الدليل في الصفحة']} />
                 </div>
 
@@ -312,10 +311,6 @@ export const App: React.FC = () => {
         </main>
 
         <footer className="overflow-hidden border-t border-ink/80 pt-8" dir="ltr">
-          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-4 sm:px-8">
-            <p className="label">FatoorahFlow · {t('Saudi bilingual document intelligence', 'ذكاء المستندات السعودية الثنائية')}</p>
-            <p className="label">tenant-demo-01</p>
-          </div>
           <p className="mt-10 select-none whitespace-nowrap text-center font-display text-[clamp(80px,19vw,300px)] leading-[.72] tracking-[-0.03em] text-ink/90">Fatoorah<i className="text-stamp">Flow</i></p>
         </footer>
 

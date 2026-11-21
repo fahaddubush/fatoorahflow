@@ -23,10 +23,7 @@ export function MachineStage(props: Props) {
         <IngestMachine key={quality} {...props} quality={quality} calm={calm} />
       </Suspense>
       {quality === 'high' && !reduced && (
-        <>
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[20%] backdrop-blur-[2.5px]" style={{ WebkitMaskImage: 'linear-gradient(to bottom, #000, transparent)', maskImage: 'linear-gradient(to bottom, #000, transparent)' }} />
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[22%] backdrop-blur-[2.5px]" style={{ WebkitMaskImage: 'linear-gradient(to top, #000, transparent)', maskImage: 'linear-gradient(to top, #000, transparent)' }} />
-        </>
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[22%] backdrop-blur-[2.5px]" style={{ WebkitMaskImage: 'linear-gradient(to top, #000, transparent)', maskImage: 'linear-gradient(to top, #000, transparent)' }} />
       )}
     </>
   );
