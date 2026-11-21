@@ -23,10 +23,10 @@
  *  - Reduced motion (system setting, or reduceMotion prop): renders a plain, still footer with a Back to top button.
  *  - Pass loop={false} to keep the visuals but disable the auto-loop.
  */
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  animate, motion, useAnimationFrame, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, useVelocity,
+  animate, motion, useAnimationFrame, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform,
 } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
 
@@ -105,8 +105,6 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
   const t = (en: string, ar: string) => (isRtl ? ar : en);
 
   const root = useRef<HTMLElement>(null);
-  const ribbon = useRef<HTMLDivElement>(null);
-  const ribbonW = useRef(1);
   const lastInput = useRef(0);
   const busy = useRef(false);
   const [looping, setLooping] = useState(false);
@@ -115,13 +113,11 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
   visible.current = inView;
 
   // scroll progress: `enter` while the footer rises into view, `p` while its stage is pinned
-  const { scrollY } = useScroll();
   const { scrollYProgress: enter } = useScroll({ target: root, offset: ['start end', 'start start'] });
   const { scrollYProgress: p } = useScroll({ target: root, offset: ['start start', 'end end'] });
   const approach = useTransform(p, (v) => clamp01((v - 0.38) / 0.62));
   const dive = useTransform(p, (v) => clamp01((v - 0.72) / 0.28));
   const wordFade = useTransform(p, (v) => 1 - clamp01((v - 0.62) / 0.3));
-  const hintOpacity = useTransform(p, [0.02, 0.1, 0.55, 0.7], [0, 1, 1, 0]);
   const tunnel = useMotionValue(0);
 
   // pointer parallax for the whole tunnel
@@ -130,21 +126,9 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
   const rotY = useTransform(px, (v) => v * 6), rotX = useTransform(py, (v) => v * -4);
   const onMove = (ev: React.PointerEvent) => { px.set((ev.clientX / window.innerWidth - 0.5) * 2); py.set((ev.clientY / window.innerHeight - 0.5) * 2); };
 
-  // ribbon skews with scroll velocity
-  const vel = useVelocity(scrollY);
-  const skew = useSpring(useTransform(vel, [-2400, 2400], [-9, 9], { clamp: true }), { stiffness: 110, damping: 20 });
-  const ribbonX = useMotionValue(0);
-  const ribbonText = useMemo(() => Array.from({ length: 10 }, (_, k) => k), []);
-
-  useLayoutEffect(() => {
-    const measure = () => { if (ribbon.current) ribbonW.current = Math.max(1, ribbon.current.scrollWidth / 2); };
-    measure(); window.addEventListener('resize', measure); return () => window.removeEventListener('resize', measure);
-  }, []);
-
   useAnimationFrame((time) => {
     if (!visible.current || reduce) return;
     tunnel.set((time / 1000) * 0.018 + window.scrollY * 0.00042);
-    ribbonX.set(-((time * 0.035 + window.scrollY * 0.28) % ribbonW.current));
   });
 
   /* ---------- the loop: cover, jump to top while hidden, open a hole from the centre ---------- */
@@ -187,12 +171,8 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
   /* ---------- still footer for reduced motion ---------- */
   if (reduce) {
     return (
-      <footer aria-label={t('Page footer', 'تذييل الصفحة')} className={`border-t border-ink/80 px-4 pb-10 pt-10 sm:px-8 ${className ?? ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
+      <footer aria-label={t('Page footer', 'تذييل الصفحة')} className={`border-t border-ink/80 px-4 pb-12 pt-12 sm:px-8 ${className ?? ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
         <p className="select-none whitespace-nowrap text-center font-display text-[clamp(64px,15vw,240px)] leading-[.8] tracking-[-0.03em] text-ink" dir="ltr" aria-hidden>Fatoorah<i className="text-stamp">Flow</i></p>
-        <div className="mx-auto mt-8 flex max-w-[1400px] flex-wrap items-center justify-between gap-4">
-          <p className="font-mono text-[10.5px] uppercase tracking-[.16em] text-ink-mute">{t('Saudi bilingual document intelligence', 'ذكاء المستندات السعودية الثنائية')}</p>
-          <button type="button" onClick={() => (scrollToTop ? scrollToTop() : window.scrollTo({ top: 0 }))} className="font-mono text-[11px] uppercase tracking-[.16em] text-ink underline underline-offset-4 hover:text-stamp">{t('Back to top', 'العودة إلى الأعلى')}</button>
-        </div>
       </footer>
     );
   }
@@ -201,21 +181,6 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
     <>
       <footer ref={root} aria-label={t('Page footer', 'تذييل الصفحة')} className={`relative ${className ?? ''}`} style={{ height: loop ? '360vh' : '220vh' }} dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="sticky top-0 h-screen overflow-hidden border-t border-ink/80" onPointerMove={onMove}>
-          {/* diagonal ribbon */}
-          <motion.div aria-hidden className="absolute -left-[10%] top-[58%] w-[120%] -rotate-[7deg] border-y border-ink/70 py-2" style={{ skewX: skew }}>
-            <motion.div ref={ribbon} className="flex w-max whitespace-nowrap" style={{ x: ribbonX }} dir="ltr">
-              {[0, 1].map((rep) => (
-                <div key={rep} className="flex shrink-0 items-center">
-                  {ribbonText.map((k) => (
-                    <span key={`${rep}-${k}`} className="flex items-center font-display text-[clamp(22px,3vw,40px)] italic leading-none text-ink/80">
-                      <span className="px-6">{k % 2 ? 'فاتورة فلو' : 'FatoorahFlow'}</span><span className="h-1.5 w-1.5 rotate-45 bg-stamp" />
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </motion.div>
-          </motion.div>
-
           {/* receipt tunnel */}
           <motion.div aria-hidden className="absolute inset-0" style={{ perspective: 800, rotateY: rotY, rotateX: rotX, transformStyle: 'preserve-3d', opacity: wordFade }}>
             {Array.from({ length: N_RECEIPTS }, (_, i) => <Receipt key={i} i={i} t={tunnel} rtl={isRtl} />)}
@@ -230,20 +195,6 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
           </motion.div>
 
           <DiveFolder approach={approach} dive={dive} />
-
-          {/* meta rows */}
-          <motion.div className="absolute inset-x-0 top-0 flex items-start justify-between gap-4 px-4 pt-5 sm:px-8" style={{ opacity: wordFade }}>
-            <p className="font-mono text-[10.5px] uppercase tracking-[.16em] text-ink-mute">{t('End of the roll', 'نهاية الشريط')}</p>
-            <p className="font-mono text-[10.5px] uppercase tracking-[.16em] text-ink-mute" dir="ltr">{t('Invoices read', 'فواتير مقروءة')} ........ ∞</p>
-          </motion.div>
-          <motion.div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-4 pb-6 sm:px-8" style={{ opacity: wordFade }}>
-            <p className="max-w-[16rem] font-mono text-[10.5px] uppercase leading-relaxed tracking-[.16em] text-ink-mute">{t('Saudi bilingual document intelligence', 'ذكاء المستندات السعودية الثنائية')}</p>
-            <button type="button" onClick={() => void startLoop(true)} className="pointer-events-auto font-mono text-[11px] uppercase tracking-[.16em] text-ink underline underline-offset-4 hover:text-stamp">{t('Back to top', 'العودة إلى الأعلى')}</button>
-          </motion.div>
-          <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-[14%] flex flex-col items-center gap-2" style={{ opacity: hintOpacity }}>
-            <span className="font-mono text-[10.5px] uppercase tracking-[.2em] text-ink-soft">{t('Keep scrolling. The roll never ends.', 'استمر في التمرير. الشريط لا ينتهي.')}</span>
-            <motion.svg viewBox="0 0 16 16" className="h-4 w-4 text-stamp" fill="none" stroke="currentColor" strokeWidth="1.6" animate={{ y: [0, 6, 0] }} transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}><path d="M3 6l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" /></motion.svg>
-          </motion.div>
         </div>
       </footer>
 
