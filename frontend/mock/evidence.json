@@ -1,0 +1,324 @@
+{
+ "invoice_number": [
+  {
+   "page": 1,
+   "bbox": [
+    0.1211,
+    0.2091,
+    0.1398,
+    0.352
+   ],
+   "raw_text": "INV-2026-00417",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "issue_date": [
+  {
+   "page": 1,
+   "bbox": [
+    0.1211,
+    0.6625,
+    0.1398,
+    0.7677
+   ],
+   "raw_text": "2026-10-28",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "issue_time": [
+  {
+   "page": 1,
+   "bbox": [
+    0.1398,
+    0.6625,
+    0.1585,
+    0.7461
+   ],
+   "raw_text": "14:32:08",
+   "engine": "pdfium-text",
+   "confidence": 0.84
+  }
+ ],
+ "seller.legal_name": [
+  {
+   "page": 1,
+   "bbox": [
+    0.0401,
+    0.0605,
+    0.0721,
+    0.4392
+   ],
+   "raw_text": "Al Noor Trading Co.",
+   "engine": "pdfium-text",
+   "confidence": 0.88
+  }
+ ],
+ "seller.vat_registration_number": [
+  {
+   "page": 1,
+   "bbox": [
+    0.1398,
+    0.2091,
+    0.1585,
+    0.3754
+   ],
+   "raw_text": "300112233400003",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "buyer.legal_name": [
+  {
+   "page": 1,
+   "bbox": [
+    0.1932,
+    0.5139,
+    0.2119,
+    0.7016
+   ],
+   "raw_text": "Red Sea Logistics LLC",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "buyer.vat_registration_number": [
+  {
+   "page": 1,
+   "bbox": [
+    0.2066,
+    0.5492,
+    0.2253,
+    0.7155
+   ],
+   "raw_text": "310998877600003",
+   "engine": "pdfium-text",
+   "confidence": 0.71
+  }
+ ],
+ "subtotal": [
+  {
+   "page": 1,
+   "bbox": [
+    0.4061,
+    0.8566,
+    0.4248,
+    0.9395
+   ],
+   "raw_text": "2,420.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "vat_total": [
+  {
+   "page": 1,
+   "bbox": [
+    0.431,
+    0.8722,
+    0.4497,
+    0.9395
+   ],
+   "raw_text": "363.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "grand_total": [
+  {
+   "page": 1,
+   "bbox": [
+    0.4666,
+    0.83,
+    0.4889,
+    0.9395
+   ],
+   "raw_text": "2,873.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[0].description": [
+  {
+   "page": 1,
+   "bbox": [
+    0.276,
+    0.0605,
+    0.3148,
+    0.4791
+   ],
+   "raw_text": "Industrial label printer",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[0].quantity": [
+  {
+   "page": 1,
+   "bbox": [
+    0.276,
+    0.469,
+    0.3148,
+    0.5659
+   ],
+   "raw_text": "2",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[0].unit_price": [
+  {
+   "page": 1,
+   "bbox": [
+    0.276,
+    0.5559,
+    0.3148,
+    0.6933
+   ],
+   "raw_text": "850.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[0].line_total": [
+  {
+   "page": 1,
+   "bbox": [
+    0.276,
+    0.7766,
+    0.3148,
+    0.9395
+   ],
+   "raw_text": "1,955.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[1].description": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3094,
+    0.0605,
+    0.3486,
+    0.4791
+   ],
+   "raw_text": "Thermal paper rolls (carton)",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[1].quantity": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3094,
+    0.469,
+    0.3486,
+    0.5659
+   ],
+   "raw_text": "10",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[1].unit_price": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3094,
+    0.5559,
+    0.3486,
+    0.6933
+   ],
+   "raw_text": "42.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[1].line_total": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3094,
+    0.7766,
+    0.3486,
+    0.9395
+   ],
+   "raw_text": "483.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[2].description": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3433,
+    0.0605,
+    0.3825,
+    0.4791
+   ],
+   "raw_text": "On-site installation",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[2].quantity": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3433,
+    0.469,
+    0.3825,
+    0.5659
+   ],
+   "raw_text": "1",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[2].unit_price": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3433,
+    0.5559,
+    0.3825,
+    0.6933
+   ],
+   "raw_text": "300.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "line_items[2].line_total": [
+  {
+   "page": 1,
+   "bbox": [
+    0.3433,
+    0.7766,
+    0.3825,
+    0.9395
+   ],
+   "raw_text": "345.00",
+   "engine": "pdfium-text",
+   "confidence": 0.97
+  }
+ ],
+ "qr": [
+  {
+   "page": 1,
+   "bbox": [
+    0.8308103294746215,
+    0.0654911838790932,
+    0.93766696349065,
+    0.21662468513853905
+   ],
+   "raw_text": "",
+   "engine": "zxingcpp",
+   "confidence": 0.99
+  }
+ ]
+}

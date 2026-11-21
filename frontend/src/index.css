@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    --c-desk: 233 225 207; --c-desk-deep: 221 211 188; --c-desk-edge: 203 191 164;
+    --c-paper: 251 248 240; --c-paper-warm: 244 238 223; --c-paper-rule: 228 220 200;
+    --c-ink: 21 18 14; --c-ink-soft: 58 52 43; --c-ink-mute: 122 113 96; --c-ink-faint: 168 159 139;
+    --c-inkbg: 21 18 14; --c-onink: 251 248 240;
+    --c-manila: 217 178 106; --c-manila-light: 231 203 141; --c-manila-dark: 185 142 67; --c-manila-shade: 156 116 48;
+    --c-stamp: 210 57 30; --c-stamp-deep: 165 42 20; --c-stamp-wash: 246 218 210;
+    --c-ledger: 30 106 77; --c-ledger-deep: 20 74 54; --c-ledger-wash: 216 232 221;
+    --c-carbon: 38 53 138;
+  }
+  /* Night desk: dark leather, lamp-lit cream paper, brass folders. */
+  [data-theme='dark'] {
+    color-scheme: dark;
+    --c-desk: 25 18 13; --c-desk-deep: 14 10 7; --c-desk-edge: 62 48 34;
+    --c-paper: 240 231 210; --c-paper-warm: 228 217 191; --c-paper-rule: 205 194 168;
+    --c-ink: 238 228 205; --c-ink-soft: 203 191 164; --c-ink-mute: 156 143 121; --c-ink-faint: 112 101 84;
+    --c-inkbg: 238 228 205; --c-onink: 25 18 13;
+    --c-manila: 184 142 62; --c-manila-light: 208 168 92; --c-manila-dark: 126 94 38;
+    --c-stamp: 232 78 52; --c-stamp-deep: 255 140 114; --c-stamp-wash: 74 32 24;
+    --c-ledger: 84 184 138; --c-ledger-deep: 132 208 170; --c-ledger-wash: 28 52 40;
+    --c-carbon: 150 164 255;
+  }
+  /* Anything that is physically paper (or a pale wash) keeps dark ink, whatever the theme. */
+  [data-theme='dark'] .bg-paper, [data-theme='dark'] .bg-paper-warm, [data-theme='dark'] .sheet, [data-theme='dark'] .paper-ink,
+  [data-theme='dark'] [class*='bg-marker/'], [data-theme='dark'] .bg-marker {
+    --c-ink: 21 18 14; --c-ink-soft: 58 52 43; --c-ink-mute: 122 113 96; --c-ink-faint: 168 159 139;
+    color: rgb(21 18 14);
+    --c-inkbg: 21 18 14; --c-onink: 251 248 240; --c-manila-shade: 156 116 48;
+    --c-stamp: 210 57 30; --c-stamp-deep: 165 42 20; --c-ledger: 30 106 77; --c-ledger-deep: 20 74 54; --c-carbon: 38 53 138;
+    --c-stamp-wash: 246 218 210; --c-ledger-wash: 216 232 221;
+  }
+  [data-theme='dark'] [class*='bg-stamp-wash'], [data-theme='dark'] [class*='bg-ledger-wash'] { background-color: rgb(var(--w) / .9); color: rgb(21 18 14); }
+  [data-theme='dark'] [class*='bg-stamp-wash'] { --w: 246 218 210; --c-stamp-deep: 165 42 20; }
+  [data-theme='dark'] [class*='bg-ledger-wash'] { --w: 216 232 221; --c-ledger-deep: 20 74 54; }
+  body { transition: background-color .6s ease, color .6s ease; }
+  [data-theme='dark'] body { background-image: radial-gradient(1100px 700px at 78% -8%, rgba(255,176,92,.13), transparent 62%); background-attachment: fixed; }
+}
+
+@layer base {
+  :root {
+    --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    --font-sans: 'Hanken Grotesk Variable', 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --ease-paper: cubic-bezier(.22, 1, .36, 1);
+    color-scheme: light;
+  }
+
+  /* Arabic swaps in a naskh display face and a humanist UI face; numerals stay tabular. */
+  [dir='rtl'] {
+    --font-display: 'Amiri', 'Instrument Serif', serif;
+    --font-sans: 'IBM Plex Sans Arabic', 'Hanken Grotesk Variable', system-ui, sans-serif;
+  }
+  [dir='rtl'] .tracking-label { letter-spacing: 0; }
+  [dir='rtl'] .caps { text-transform: none; }
+
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: 'tnum' 1, 'ss01' 1;
+    background-color: theme('colors.desk.DEFAULT');
+    overflow-x: hidden;
+  }
+  ::selection { background: theme('colors.marker'); color: theme('colors.ink.DEFAULT'); }
+  :focus-visible {
+    outline: 2px solid theme('colors.stamp.DEFAULT');
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+}
+
+@layer components {
+  /* Grain: a fixed film of paper fibre over the whole desk. */
+  .grain::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .27  0 0 0 0 .14  0 0 0 .11 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  [data-theme='dark'] .grain::before { opacity: .3; }
+  /* Desk lamp: a warm pool of light that follows the pointer (night desk only). */
+  .lamp { display: none; }
+  [data-theme='dark'] .lamp { display: block; position: fixed; inset: 0; z-index: 58; pointer-events: none;
+    background: radial-gradient(520px circle at var(--lx, 70%) var(--ly, 12%), rgba(255,184,100,.16), transparent 68%); }
+  /* Pointer-following sheen used with the Tilt wrapper. */
+  .glare { position: relative; }
+  .glare::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: var(--ga, 0); transition: opacity .5s ease;
+    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.42), transparent 62%); }
+  .skeleton { background: linear-gradient(100deg, rgb(var(--c-paper-rule) / .5) 30%, rgb(var(--c-paper-rule) / .15) 50%, rgb(var(--c-paper-rule) / .5) 70%); background-size: 200% 100%; }
+  .caps { text-transform: uppercase; }
+  .tracking-label { letter-spacing: .16em; }
+  .label {
+    @apply font-mono text-[10.5px] caps tracking-label text-ink-mute;
+  }
+
+  /* Torn receipt edges: zig-zag top / bottom built from gradients so they scale with the box. */
+  .edge-zig-bottom {
+    --z: 9px;
+    -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--z) 100%;
+            mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--z) 100%;
+  }
+  .edge-zig-top {
+    --z: 9px;
+    -webkit-mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--z) 100%;
+            mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--z) 100%;
+  }
+  .perf-x {
+    background-image: radial-gradient(circle at 50% 50%, theme('colors.desk.DEFAULT') 0 2.4px, transparent 2.8px);
+    background-size: 12px 6px; background-repeat: repeat-x;
+  }
+  .rule-dashed { border-image: repeating-linear-gradient(90deg, theme('colors.ink.faint') 0 5px, transparent 5px 10px) 1; }
+
+  /* Ruled ledger paper behind long forms. */
+  .ledger-lines {
+    background-image: linear-gradient(to bottom, transparent calc(100% - 1px), theme('colors.paper.rule') 0);
+    background-size: 100% 2.25rem;
+  }
+
+  .sheet {
+    background: theme('colors.paper.DEFAULT');
+    box-shadow: theme('boxShadow.sheet');
+    position: relative;
+  }
+  .sheet::after { /* faint top-light so paper reads as a physical sheet */
+    content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,.55), transparent 28%, rgba(120,90,30,.05));
+  }
+
+  /* Manila folder: a body with a tab, drawn with clip paths so every instance can be any width. */
+  .folder-tab {
+    clip-path: polygon(0 100%, 0 14%, 3% 0, 52% 0, 58% 22%, 100% 22%, 100% 100%);
+  }
+  [dir='rtl'] .folder-tab { transform: scaleX(-1); }
+  [dir='rtl'] .folder-tab > * { transform: scaleX(-1); }
+
+  .stamp {
+    @apply font-mono font-medium caps tracking-label inline-block border-[1.5px] px-2 py-[3px] text-[10px] leading-none rounded-[3px];
+    mix-blend-mode: multiply;
+  }
+
+  .btn-ink {
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-inkbg px-5 py-3 text-[13px] font-semibold text-onink transition-colors duration-300;
+  }
+  .btn-ink::before {
+    content: ''; position: absolute; inset: 0; background: theme('colors.stamp.DEFAULT');
+    transform: translateY(101%); transition: transform .55s var(--ease-paper);
+  }
+  .btn-ink:hover::before { transform: translateY(0); }
+  .btn-ink > * { position: relative; z-index: 1; }
+  .btn-ink:disabled { opacity: .4; }
+  .btn-ink:disabled::before { display: none; }
+
+  .btn-line {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/25 px-5 py-3 text-[13px] font-semibold text-ink transition duration-300 hover:border-ink hover:bg-inkbg hover:text-onink disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink;
+  }
+  .field-input {
+    @apply w-full border-0 border-b border-ink/30 bg-transparent px-0 py-2 text-[15px] text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-stamp;
+  }
+}
+
+/* Custom scrollbars: thin ruled tape */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(21,18,14,.22); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(21,18,14,.4); background-clip: content-box; border: 2px solid transparent; }
+
+[data-motion='none'] *, [data-motion='none'] *::before, [data-motion='none'] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+[data-motion='calm'] .animate-marquee { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
