@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import { correctField, fetchAuditTrail, getPageImageUrl, ReviewApiError, submitDecision } from '../api/client';
 import { AuditEvent, DocumentDetail as DocDetailType, LineItem, ValidationFinding } from '../types';
@@ -651,51 +652,77 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
       </AnimatePresence>
 
       {/* ---------- audit tape ---------- */}
-      <AnimatePresence>
-        {showAuditDrawer && (
-          <motion.div data-lenis-prevent className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAuditDrawer(false)}>
-            <motion.aside
-              role="dialog" aria-modal="true" aria-labelledby="audit-title" onClick={(e) => e.stopPropagation()}
-              className="h-full w-full max-w-md overflow-y-auto bg-paper p-7 shadow-lift"
-              initial={{ x: isRtl ? '-100%' : '100%' }} animate={{ x: 0 }} exit={{ x: isRtl ? '-100%' : '100%' }} transition={{ duration: 0.7, ease: EASE }}
-            >
-              <div className="flex items-start justify-between gap-3 border-b border-ink/80 pb-3">
-                <div>
-                  <p className="label">{t('Ledger tape', 'شريط الدفتر')}</p>
-                  <h3 id="audit-title" className="mt-1 font-display text-[32px] leading-none">{t('Audit Event Timeline', 'سجل العمليات والتدقيق')}</h3>
-                </div>
-                <button type="button" onClick={() => setShowAuditDrawer(false)} aria-label={t('Close audit trail', 'إغلاق سجل التدقيق')} className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/25 transition hover:rotate-90 hover:bg-inkbg hover:text-onink">
-                  <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden><path d="M3 3l10 10M13 3 3 13" strokeLinecap="round" /></svg>
-                </button>
-              </div>
-              {auditLoading && <p className="mt-4 text-sm text-ink-soft animate-blink">{t('Loading audit events…', 'جارٍ تحميل سجل التدقيق…')}</p>}
-              {auditError && <p role="alert" className="mt-4 text-sm text-stamp-deep">{t('Could not load audit events.', 'تعذر تحميل سجل التدقيق.')}</p>}
-              <ol className="mt-5">
-                {auditEvents.map((event, i) => (
-                  <motion.li key={event.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.07, duration: 0.6, ease: EASE }}
-                    className="space-y-2 border-b border-dashed border-ink/35 py-4 text-[13px]">
-                    <div className="flex flex-wrap items-baseline justify-between gap-1">
-                      <span className="font-mono text-[12px] font-medium text-stamp">{event.action}</span>
-                      <time dateTime={event.timestamp} className="font-mono text-[11px] text-ink-mute" dir="ltr">{new Date(event.timestamp).toLocaleString()}</time>
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {showAuditDrawer && (
+            <div data-lenis-prevent className="fixed inset-0 z-50 overflow-hidden">
+              {/* Full-screen backdrop blur */}
+              <motion.div
+                className="fixed inset-0 bg-ink/40 backdrop-blur-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => setShowAuditDrawer(false)}
+              />
+
+              {/* Adaptive receipt tape hanging from top and sitting flush next to the end border */}
+              <div className="fixed inset-x-0 top-0 flex justify-end pointer-events-none">
+                <motion.aside
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="audit-title"
+                  onClick={(e) => e.stopPropagation()}
+                  className="edge-zig-bottom pointer-events-auto relative flex w-full max-w-[440px] max-h-[82vh] flex-col bg-paper p-6 pb-14 shadow-sheet"
+                  style={{ filter: 'drop-shadow(0 24px 30px rgba(60,42,12,.3))' }}
+                  initial={{ x: isRtl ? '-100%' : '100%', opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: isRtl ? '-100%' : '100%', opacity: 0 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                >
+                  <div className="flex shrink-0 items-start justify-between gap-3 border-b border-ink/80 pb-3">
+                    <div>
+                      <p className="label">{t('Ledger tape', 'شريط الدفتر')}</p>
+                      <h3 id="audit-title" className="mt-1 font-display text-[30px] leading-none">{t('Audit Event Timeline', 'سجل العمليات والتدقيق')}</h3>
                     </div>
-                    <p className="text-ink-soft">{t('Actor', 'المنفّذ')} · {event.actor_id}</p>
-                    {event.action === 'FIELD_CORRECTION' ? (
-                      <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1 break-all">
-                        <dt className="label">{t('Field', 'الحقل')}</dt><dd className="font-mono text-[12px]">{displayValue(event.metadata.field)}</dd>
-                        <dt className="label">{t('Original value', 'القيمة الأصلية')}</dt><dd className="font-mono text-[12px] line-through decoration-stamp">{displayValue(event.metadata.from)}</dd>
-                        <dt className="label">{t('Corrected value', 'القيمة المصححة')}</dt><dd className="font-mono text-[12px] font-medium">{displayValue(event.metadata.to)}</dd>
-                        <dt className="label">{t('Reason', 'السبب')}</dt><dd>{displayValue(event.metadata.reason)}</dd>
-                      </dl>
-                    ) : (
-                      <pre className="overflow-x-auto bg-paper-warm p-2 font-mono text-[11px] text-ink-soft" dir="ltr">{JSON.stringify(event.metadata, null, 2)}</pre>
-                    )}
-                  </motion.li>
-                ))}
-              </ol>
-            </motion.aside>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                    <button type="button" onClick={() => setShowAuditDrawer(false)} aria-label={t('Close audit trail', 'إغلاق سجل التدقيق')} className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/25 transition hover:rotate-90 hover:bg-inkbg hover:text-onink">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden><path d="M3 3l10 10M13 3 3 13" strokeLinecap="round" /></svg>
+                    </button>
+                  </div>
+                  {auditLoading && <p className="mt-4 text-sm text-ink-soft animate-blink">{t('Loading audit events…', 'جارٍ تحميل سجل التدقيق…')}</p>}
+                  {auditError && <p role="alert" className="mt-4 text-sm text-stamp-deep">{t('Could not load audit events.', 'تعذر تحميل سجل التدقيق.')}</p>}
+                  {!auditLoading && !auditError && auditEvents.length === 0 && (
+                    <p className="mt-4 text-sm text-ink-soft">{t('No audit events recorded yet.', 'لا توجد عمليات مسجلة بعد.')}</p>
+                  )}
+                  <ol className="mt-4 flex-1 overflow-y-auto pe-1 [scrollbar-width:thin]">
+                    {auditEvents.map((event, i) => (
+                      <motion.li key={event.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.05, duration: 0.5, ease: EASE }}
+                        className="space-y-2 border-b border-dashed border-ink/35 py-3.5 text-[13px] last:border-b-0">
+                        <div className="flex flex-wrap items-baseline justify-between gap-1">
+                          <span className="font-mono text-[12px] font-medium text-stamp">{event.action}</span>
+                          <time dateTime={event.timestamp} className="font-mono text-[11px] text-ink-mute" dir="ltr">{new Date(event.timestamp).toLocaleString()}</time>
+                        </div>
+                        <p className="text-ink-soft">{t('Actor', 'المنفّذ')} · {event.actor_id}</p>
+                        {event.action === 'FIELD_CORRECTION' ? (
+                          <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1 break-all">
+                            <dt className="label">{t('Field', 'الحقل')}</dt><dd className="font-mono text-[12px]">{displayValue(event.metadata.field)}</dd>
+                            <dt className="label">{t('Original value', 'القيمة الأصلية')}</dt><dd className="font-mono text-[12px] line-through decoration-stamp">{displayValue(event.metadata.from)}</dd>
+                            <dt className="label">{t('Corrected value', 'القيمة المصححة')}</dt><dd className="font-mono text-[12px] font-medium">{displayValue(event.metadata.to)}</dd>
+                            <dt className="label">{t('Reason', 'السبب')}</dt><dd>{displayValue(event.metadata.reason)}</dd>
+                          </dl>
+                        ) : (
+                          <pre className="overflow-x-auto bg-paper-warm p-2 font-mono text-[11px] text-ink-soft" dir="ltr">{JSON.stringify(event.metadata, null, 2)}</pre>
+                        )}
+                      </motion.li>
+                    ))}
+                  </ol>
+                </motion.aside>
+              </div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 };

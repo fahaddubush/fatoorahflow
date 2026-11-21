@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { AnimatePresence, animate, motion, motionValue, useInView } from 'framer-motion';
+import { AnimatePresence, motion, useInView } from 'framer-motion';
 import { sound } from '../lib/sound';
 import { DocumentListItem, isActiveProcessing } from '../types';
 import { StatusStamp, EASE, Tilt } from './ui';
@@ -21,13 +21,6 @@ interface DocumentQueueProps {
 export const DocumentQueue: React.FC<DocumentQueueProps> = ({ documents, activeFilter, onFilterChange, onSelectDocument, isRtl, loaded = true, onFeed, suspendMachine, dark }) => {
   const wrap = useRef<HTMLElement>(null);
   const inView = useInView(wrap, { once: true, margin: '0px 0px -18% 0px' });
-  const tabEls = useRef<(HTMLDivElement | null)[]>([]);
-  const mags = useRef(Array.from({ length: 9 }, () => motionValue(0))).current;
-  const pull = (x: number | null) => tabEls.current.forEach((el, i) => {
-    let target = 0;
-    if (x !== null && el) { const r = el.getBoundingClientRect(); const dx = x - (r.left + r.width / 2); const d = Math.abs(dx); if (d < 150) target = Math.max(-14, Math.min(14, dx * 0.16 * (1 - d / 150))); }
-    animate(mags[i], target, { type: 'spring', stiffness: 210, damping: 15 });
-  });
   const [searchQuery, setSearchQuery] = useState('');
   const t = (en: string, ar: string) => (isRtl ? ar : en);
 
@@ -48,34 +41,31 @@ export const DocumentQueue: React.FC<DocumentQueueProps> = ({ documents, activeF
 
   return (
     <section ref={wrap} aria-label={t('Documents', 'المستندات')} className="paper-ink relative">
-      {/* tabs */}
-      <div className="relative z-10 -mb-px flex items-end gap-[3px] overflow-x-auto px-2 pt-2 [scrollbar-width:none]" role="tablist" aria-label={t('Filter by status', 'تصفية حسب الحالة')} onPointerMove={(e) => pull(e.clientX)} onPointerLeave={() => pull(null)}>
-        {filterTabs.map((tab, ti) => {
-          const active = activeFilter === tab.id;
-          return (
-            <motion.div key={tab.id} ref={(el) => { tabEls.current[ti] = el; }} style={{ x: mags[ti] }} className="shrink-0">
-            <motion.button
-              role="tab" aria-selected={active} onClick={() => { sound.tab(); onFilterChange(tab.id); }}
-              initial={{ x: (isRtl ? 1 : -1) * ti * 52, rotate: isRtl ? 6 : -6, opacity: 0 }}
-              animate={inView ? { x: 0, rotate: 0, opacity: 1 } : undefined}
-              transition={{ type: 'spring', stiffness: 130, damping: 17, delay: 0.06 * ti }}
-              whileHover={{ y: -3 }}
-              onPointerMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); e.currentTarget.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`); e.currentTarget.style.setProperty('--my', '50%'); e.currentTarget.style.setProperty('--ga', '1'); }}
-              onPointerLeave={(e) => e.currentTarget.style.setProperty('--ga', '0')}
-              className={`glare relative shrink-0 overflow-hidden whitespace-nowrap rounded-t-[10px] px-4 pb-2 pt-2.5 font-mono text-[11px] caps tracking-label transition-colors duration-500 ease-paper ${
-                active ? 'z-10 bg-manila-light pb-3 text-ink' : 'bg-manila-dark/70 text-ink-soft hover:bg-manila'}`}
-              style={{ boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,.55)' : 'inset 0 1px 0 rgba(255,255,255,.25)' }}
-            >
-              {tab.label}
-            </motion.button>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* folder body */}
       <Tilt max={1.2}>
-      <div className="glare relative rounded-b-[14px] rounded-tr-[14px] bg-gradient-to-b from-manila-light to-manila p-3 shadow-lift sm:p-5" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,.5), 0 30px 50px -28px rgba(60,42,12,.5)' }}>
+        {/* tabs */}
+        <div className="relative z-10 -mb-px flex items-end gap-[3px] overflow-x-auto px-2 pt-2 [scrollbar-width:none]" role="tablist" aria-label={t('Filter by status', 'تصفية حسب الحالة')}>
+          {filterTabs.map((tab, ti) => {
+            const active = activeFilter === tab.id;
+            return (
+              <div key={tab.id} className="shrink-0">
+                <motion.button
+                  role="tab" aria-selected={active} onClick={() => { sound.tab(); onFilterChange(tab.id); }}
+                  initial={{ x: (isRtl ? 1 : -1) * ti * 52, rotate: isRtl ? 6 : -6, opacity: 0 }}
+                  animate={inView ? { x: 0, rotate: 0, opacity: 1 } : undefined}
+                  transition={{ type: 'spring', stiffness: 130, damping: 17, delay: 0.06 * ti }}
+                  className={`glare relative shrink-0 overflow-hidden whitespace-nowrap rounded-t-[10px] px-4 pb-2 pt-2.5 font-mono text-[11px] caps tracking-label transition-colors duration-300 ease-paper ${
+                    active ? 'z-10 bg-manila-light pb-3 text-ink font-semibold' : 'bg-manila-dark/70 text-ink-soft hover:bg-manila hover:text-ink'}`}
+                  style={{ boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,.55)' : 'inset 0 1px 0 rgba(255,255,255,.25)' }}
+                >
+                  {tab.label}
+                </motion.button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* folder body */}
+        <div className="glare relative rounded-b-[14px] rounded-tr-[14px] bg-gradient-to-b from-manila-light to-manila p-3 shadow-lift sm:p-5" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,.5), 0 30px 50px -28px rgba(60,42,12,.5)' }}>
         <div className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="font-display text-[34px] leading-none text-ink">{t('The archive', 'الأرشيف')}</h2>
