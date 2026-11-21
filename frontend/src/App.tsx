@@ -315,7 +315,7 @@ export const App: React.FC = () => {
       <div className="grain relative flex min-h-screen flex-col bg-desk font-sans text-ink">
         <Navbar isRtl={isRtl} onToggleLanguage={() => setIsRtl(!isRtl)} onNewUpload={() => setIsUploadOpen(true)} onGoHome={handleBackToQueue} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
 
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 pb-24 pt-8 sm:px-8 sm:pt-12">
+        <main className="relative z-10 mx-auto w-full max-w-[1400px] flex-1 px-4 pb-24 pt-8 sm:px-8 sm:pt-12">
           <AnimatePresence mode="wait">
             {view === 'processing' && selectedDoc && processingJobId && (
               <motion.div key={`processing-${processingJobId}`} {...pageMotion}>

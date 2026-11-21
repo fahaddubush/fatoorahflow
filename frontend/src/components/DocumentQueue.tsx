@@ -57,7 +57,7 @@ export const DocumentQueue: React.FC<DocumentQueueProps> = ({ documents, activeF
                     active ? 'z-10 bg-manila-light pb-3 text-ink font-semibold' : 'bg-manila-dark/70 text-ink-soft hover:bg-manila hover:text-ink'}`}
                   style={{ boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,.55)' : 'inset 0 1px 0 rgba(255,255,255,.25)' }}
                 >
-                  {tab.label}
+                  <span className="relative z-10">{tab.label}</span>
                 </motion.button>
               </div>
             );
@@ -66,6 +66,7 @@ export const DocumentQueue: React.FC<DocumentQueueProps> = ({ documents, activeF
 
         {/* folder body */}
         <div className="glare relative rounded-b-[14px] rounded-tr-[14px] bg-gradient-to-b from-manila-light to-manila p-3 shadow-lift sm:p-5" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,.5), 0 30px 50px -28px rgba(60,42,12,.5)' }}>
+        <div className="relative z-10">
         <div className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="font-display text-[34px] leading-none text-ink">{t('The archive', 'الأرشيف')}</h2>
@@ -170,6 +171,7 @@ export const DocumentQueue: React.FC<DocumentQueueProps> = ({ documents, activeF
         </div>
         )}
         <div className="h-3" />
+        </div>
       </div>
       </Tilt>
     </section>

@@ -109,12 +109,20 @@ html.theme-transitioning *::after {
   [data-theme='dark'] .grain::before { opacity: .3; }
   /* Desk lamp: a warm pool of light that follows the pointer (night desk only). */
   .lamp { display: none; }
-  [data-theme='dark'] .lamp { display: block; position: fixed; inset: 0; z-index: 58; pointer-events: none;
-    background: radial-gradient(520px circle at var(--lx, 70%) var(--ly, 12%), rgba(255,184,100,.16), transparent 68%); }
-  /* Pointer-following sheen used with the Tilt wrapper. */
+  [data-theme='dark'] .lamp {
+    display: block; position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.5;
+    background: radial-gradient(520px circle at var(--lx, 70%) var(--ly, 12%), rgba(255,184,100,.08), transparent 68%);
+  }
+  /* Pointer-following sheen used with the Tilt wrapper. Placed BEHIND text at z-index: 0. */
   .glare { position: relative; }
-  .glare::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: var(--ga, 0); transition: opacity .5s ease;
-    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.42), transparent 62%); }
+  .glare::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: var(--ga, 0); transition: opacity .4s ease;
+    z-index: 0;
+    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.12), transparent 62%);
+  }
+  [data-theme='dark'] .glare::before {
+    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgba(255,210,140,.07), transparent 62%);
+  }
   .skeleton { background: linear-gradient(100deg, rgb(var(--c-paper-rule) / .5) 30%, rgb(var(--c-paper-rule) / .15) 50%, rgb(var(--c-paper-rule) / .5) 70%); background-size: 200% 100%; }
   .caps { text-transform: uppercase; }
   .tracking-label { letter-spacing: .16em; }
