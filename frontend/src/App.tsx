@@ -378,7 +378,7 @@ export const App: React.FC = () => {
                     </div>
                   </motion.div>
                   <motion.div className="relative z-20" style={{ y: receiptY, rotate: receiptRot, scale: receiptScale }}>
-                    <OverviewStats analytics={analytics} isRtl={isRtl} activeFilter={activeFilter} onFilter={showArchive} theme={theme} />
+                    <OverviewStats analytics={analytics} isRtl={isRtl} activeFilter={activeFilter} onFilter={showArchive} />
                   </motion.div>
                 </section>
 
@@ -398,7 +398,6 @@ export const App: React.FC = () => {
           isRtl={isRtl}
           reduceMotion={settings.motion !== 'full' || view !== 'dashboard'}
           loop={view === 'dashboard'}
-          theme={theme}
           scrollToTop={() => {
             if (lenisRef.current) {
               lenisRef.current.scrollTo(0, { immediate: true });
