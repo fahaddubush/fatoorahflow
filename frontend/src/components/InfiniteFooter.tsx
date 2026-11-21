@@ -29,6 +29,7 @@ import {
   animate, motion, useAnimationFrame, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform,
 } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
+import { PaperclipClasp } from './PaperclipClasp';
 
 export interface InfiniteFooterProps {
   isRtl?: boolean;
@@ -37,6 +38,7 @@ export interface InfiniteFooterProps {
   scrollToTop?: () => void;
   onLoop?: () => void;
   className?: string;
+  theme?: 'light' | 'dark';
 }
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
@@ -47,9 +49,12 @@ const N_RECEIPTS = 15;
 
 /* ------------------------------------------------------------------ receipts ------------------------------------------------------------------ */
 
-function Receipt({ i, t, rtl }: { i: number; t: MotionValue<number>; rtl: boolean }) {
+function Receipt({ i, t, rtl, theme }: { i: number; t: MotionValue<number>; rtl: boolean; theme?: 'light' | 'dark' }) {
   const seed = useMemo(() => {
     const a = i * 2.399963, R = 22 + ((i * 47) % 28);
+    const clipVariant = (i % 3) as 0 | 1 | 2;
+    // slight natural tilt angle jitter (-4deg to +6deg)
+    const clipTilt = Number((-4 + (((i * 73) % 100) / 10)).toFixed(1));
     return {
       x: Math.cos(a) * R * 0.52,
       y: Math.sin(a) * R * 0.38,
@@ -58,19 +63,35 @@ function Receipt({ i, t, rtl }: { i: number; t: MotionValue<number>; rtl: boolea
       ry: ((i * 29) % 30) - 15,
       stamp: i % 3 === 0,
       bars: [58, 82, 44, 70, 36].map((w, k) => 30 + ((w + i * 11 + k * 7) % 60)),
+      clipVariant,
+      clipTilt,
     };
   }, [i]);
   const u = useTransform(t, (v) => (((i / N_RECEIPTS + v) % 1) + 1) % 1);
   const transform = useTransform(u, (k) => `translate3d(${seed.x}vw, ${seed.y}vh, ${-2600 + k * 2900}px) rotateZ(${seed.r + k * seed.spin}deg) rotateY(${seed.ry}deg)`);
   const opacity = useTransform(u, (k) => (k < 0.12 ? k / 0.12 : k > 0.74 ? Math.max(0, (1 - k) / 0.26) : 1));
   return (
-    <motion.div aria-hidden className="edge-zig-bottom absolute left-1/2 top-1/2 h-[220px] w-[145px] bg-paper px-3 pb-8 pt-3 shadow-sheet" style={{ transform, opacity, marginLeft: -72, marginTop: -110, willChange: 'transform, opacity' }}>
-      <p className="font-mono text-[8px] uppercase tracking-[.16em] text-ink-mute">{rtl ? 'فاتورة ضريبية' : 'Tax invoice'}</p>
-      <div className="my-1.5 h-px bg-ink/70" />
-      <p className="font-mono text-[8px] text-ink-soft" dir="ltr">INV-2026-{String(100 + i * 7).padStart(5, '0')}</p>
-      {seed.bars.map((w, k) => <div key={k} className="mt-[7px] h-[5px] bg-ink/15" style={{ width: `${w}%` }} />)}
-      <div className="mt-3 flex justify-between font-mono text-[8px] text-ink" dir="ltr"><span>VAT 15%</span><span>{(1200 + i * 183).toFixed(2)}</span></div>
-      {seed.stamp && <span className="absolute bottom-6 end-3 -rotate-12 border-[1.5px] border-stamp px-1.5 py-[2px] font-mono text-[8px] uppercase tracking-[.14em] text-stamp mix-blend-multiply">{rtl ? 'مدفوعة' : 'Paid'}</span>}
+    <motion.div aria-hidden className="absolute left-1/2 top-1/2 h-[220px] w-[145px]" style={{ transform, opacity, marginLeft: -72, marginTop: -110, willChange: 'transform, opacity' }}>
+      <PaperclipClasp
+        variant={seed.clipVariant}
+        theme={theme}
+        isRtl={rtl}
+        position="top-right"
+        size="sm"
+        tilt={seed.clipTilt}
+        offset={{ x: 14 }}
+        className="h-full w-full"
+        contentClassName="h-full w-full"
+      >
+        <div className="edge-zig-bottom h-full w-full bg-paper px-3 pb-8 pt-3 shadow-sheet">
+          <p className="font-mono text-[8px] uppercase tracking-[.16em] text-ink-mute">{rtl ? 'فاتورة ضريبية' : 'Tax invoice'}</p>
+          <div className="my-1.5 h-px bg-ink/70" />
+          <p className="font-mono text-[8px] text-ink-soft" dir="ltr">INV-2026-{String(100 + i * 7).padStart(5, '0')}</p>
+          {seed.bars.map((w, k) => <div key={k} className="mt-[7px] h-[5px] bg-ink/15" style={{ width: `${w}%` }} />)}
+          <div className="mt-3 flex justify-between font-mono text-[8px] text-ink" dir="ltr"><span>VAT 15%</span><span>{(1200 + i * 183).toFixed(2)}</span></div>
+          {seed.stamp && <span className="absolute bottom-6 end-3 -rotate-12 border-[1.5px] border-stamp px-1.5 py-[2px] font-mono text-[8px] uppercase tracking-[.14em] text-stamp mix-blend-multiply">{rtl ? 'مدفوعة' : 'Paid'}</span>}
+        </div>
+      </PaperclipClasp>
     </motion.div>
   );
 }
@@ -107,10 +128,32 @@ function Letter({ ch, i, e, italic }: { ch: string; i: number; e: MotionValue<nu
 
 /* ------------------------------------------------------------------ main ------------------------------------------------------------------ */
 
-export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrollToTop, onLoop, className }: InfiniteFooterProps) {
+export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrollToTop, onLoop, className, theme: propTheme }: InfiniteFooterProps) {
   const system = useReducedMotion();
   const reduce = reduceMotion ?? Boolean(system);
   const t = (en: string, ar: string) => (isRtl ? ar : en);
+
+  const [activeTheme, setActiveTheme] = useState<'light' | 'dark'>(() => {
+    if (propTheme) return propTheme;
+    if (typeof document !== 'undefined') {
+      return (document.documentElement.dataset.theme as 'light' | 'dark') || 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    if (propTheme) {
+      setActiveTheme(propTheme);
+      return;
+    }
+    const updateTheme = () => {
+      const current = (document.documentElement.dataset.theme as 'light' | 'dark') || 'light';
+      setActiveTheme(current);
+    };
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, [propTheme]);
 
   const root = useRef<HTMLElement>(null);
   const lastInput = useRef(0);
@@ -203,7 +246,7 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
               WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 16%, rgba(0,0,0,1) 84%, transparent 100%)',
             }}
           >
-            {Array.from({ length: N_RECEIPTS }, (_, i) => <Receipt key={i} i={i} t={tunnel} rtl={isRtl} />)}
+            {Array.from({ length: N_RECEIPTS }, (_, i) => <Receipt key={i} i={i} t={tunnel} rtl={isRtl} theme={activeTheme} />)}
           </motion.div>
 
           {/* wordmark */}
