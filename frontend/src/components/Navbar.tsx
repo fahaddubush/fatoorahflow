@@ -76,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isRtl, onToggleLanguage, onNewUp
             </button>
           </LayoutGroup>
 
-          <Magnetic strength={0.18}>
+          <Magnetic strength={0.08}>
             <button type="button" onClick={onNewUpload} className="btn-ink">
               <span>{t('Feed an invoice', 'ارفع فاتورة')}</span>
               <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" strokeLinecap="round" strokeLinejoin="round" /></svg>

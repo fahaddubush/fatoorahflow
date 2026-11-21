@@ -14,7 +14,6 @@ import { FlightInfo, PaperFlight } from './components/PaperFlight';
 import { sound } from './lib/sound';
 import { useSettings } from './lib/settings';
 import { InkFilters } from './components/Ink';
-import { Motes } from './components/Motes';
 import { FolderCurtain } from './components/FolderCurtain';
 import { BootScreen } from './components/BootScreen';
 import { DrawRule, EASE, Magnetic, Marquee, ReadyContext, Rise } from './components/ui';
@@ -325,7 +324,6 @@ export const App: React.FC = () => {
           onBatchDone={() => { void loadData(); showArchive('ALL'); }}
         />
         <InkFilters />
-        <Motes enabled={dark && settings.motion === 'full'} />
         <Cursor enabled={(view === 'dashboard' || view === 'detail') && !isUploadOpen && !booting} label={t('View', 'عرض')} />
         <AnimatePresence>
           {dragging && (

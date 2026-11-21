@@ -76,7 +76,6 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
   const [notes, setNotes] = useState<Record<string, string>>(() => { try { return JSON.parse(localStorage.getItem(`ff-notes-${doc.id}`) || '{}'); } catch { return {}; } });
   const [noteEditing, setNoteEditing] = useState<string | null>(null);
   const [noteDraft, setNoteDraft] = useState('');
-  const [reviewed, setReviewed] = useState<Set<string>>(() => new Set());
   const [showKeys, setShowKeys] = useState(false);
   const [justCorrected, setJustCorrected] = useState<{ path: string; from: string; to: string; at: number } | null>(null);
 
@@ -98,7 +97,6 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
   function selectEvidence(fieldPath: string) {
     sound.click();
     setActiveField(fieldPath);
-    setReviewed((r) => new Set(r).add(fieldPath));
     const box = doc.evidence[fieldPath]?.find((item) => doc.pages.some((page) => page.page_no === item.page));
     if (box) setPageNo(box.page);
   }
@@ -148,7 +146,6 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
       setJustCorrected({ path: editingField.path, from: displayValue(editingField.value), to: value, at });
       window.setTimeout(() => setJustCorrected((c) => (c && c.at === at ? null : c)), 4800);
       sound.ping();
-      setReviewed((r) => new Set(r).add(editingField.path));
       setEditingField(null);
       await refreshReview();
     } catch (error) {
@@ -218,15 +215,11 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
     const flagged = matchingFindings.length > 0;
     const fresh = justCorrected?.path === field.path ? justCorrected : null;
     const sizeCls = opts.large ? 'font-display text-[34px] leading-none' : 'text-[17px]';
-    const conf = doc.evidence[field.path]?.[0]?.confidence;
-    const lowConf = typeof conf === 'number' && conf < 0.9 && !reviewed.has(field.path) && !fresh;
-    // low-confidence values are set in thin, smudged ink until a reviewer looks at them
-    const inkStyle: React.CSSProperties | undefined = lowConf ? { opacity: 0.42 + (conf as number) * 0.5, filter: 'blur(0.55px)', textShadow: '0 0 7px rgb(var(--c-ink) / .4)' } : undefined;
     return (
       <div key={field.path} id={fieldDomId(field.path)} className={`group relative min-w-0 border-t py-3 ps-3 transition-colors duration-500 ${active ? 'border-stamp bg-marker/30' : 'border-ink/15'}`}>
         <span className={`absolute inset-y-0 start-0 w-[3px] origin-top transition-transform duration-500 ease-paper ${active ? 'scale-y-100 bg-stamp' : flagged ? 'scale-y-100 bg-manila-shade' : 'scale-y-0 bg-stamp'}`} />
         <div className="flex items-center justify-between gap-2">
-          <span className="label">{field.label}{lowConf && <span className="ms-2 text-manila-shade" title={t('Low extraction confidence. Open the evidence to confirm.', 'ثقة الاستخراج منخفضة. افتح الدليل للتأكد.')}>~{Math.round((conf as number) * 100)}% {t('unverified', 'غير مؤكد')}</span>}</span>
+          <span className="label">{field.label}</span>
           <span className="flex items-center gap-3">
           <button type="button" data-cursor="pen" onClick={() => openNote(field.path)}
             title={notes[field.path] ? `${t('Edit note for', 'تعديل ملاحظة')} ${field.label}` : `${t('Add note to', 'إضافة ملاحظة إلى')} ${field.label}`}
@@ -270,14 +263,14 @@ export const DocumentDetail: React.FC<DocumentDetailProps> = ({ document: doc, o
           </div>
         ) : hasEvidence ? (
           <button
-            type="button" data-cursor="pen" style={inkStyle} onClick={() => selectEvidence(field.path)} title={t('Show source evidence', 'عرض الدليل في المستند')}
+            type="button" data-cursor="pen" onClick={() => selectEvidence(field.path)} title={t('Show source evidence', 'عرض الدليل في المستند')}
             aria-label={`${t('Show evidence for', 'عرض دليل')} ${field.label}`}
             className={`mt-1 max-w-full break-words text-start font-medium leading-snug ${opts.large ? 'font-display text-[34px] leading-none' : 'text-[17px]'} ${markerSweep}`}
           >
             {displayValue(field.value)}
           </button>
         ) : (
-          <p style={inkStyle} className={`mt-1 break-words font-medium leading-snug ${opts.large ? 'font-display text-[34px] leading-none' : 'text-[17px]'}`}>{displayValue(field.value)}</p>
+          <p className={`mt-1 break-words font-medium leading-snug ${opts.large ? 'font-display text-[34px] leading-none' : 'text-[17px]'}`}>{displayValue(field.value)}</p>
         )}
         {matchingFindings.map((finding, index) => (
           <p key={`${finding.rule_id}-${index}`} title={finding.rule_id} className={`mt-2 text-[12.5px] leading-snug ${finding.severity === 'blocking' ? 'text-stamp-deep' : 'text-manila-shade'}`}>

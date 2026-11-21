@@ -25,8 +25,8 @@ export function Reveal({ children, delay = 0, y = 24, className, inView = false 
   );
 }
 
-/** Pulls its child toward the pointer, then settles back. */
-export function Magnetic({ children, strength = 0.28, className }: { children: React.ReactNode; strength?: number; className?: string }) {
+/** Pulls its child toward the pointer with subtle, gentle dampening. */
+export function Magnetic({ children, strength = 0.08, className }: { children: React.ReactNode; strength?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const x = useSpring(useMotionValue(0), { stiffness: 220, damping: 18, mass: 0.4 });
