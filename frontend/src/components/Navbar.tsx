@@ -9,7 +9,7 @@ interface NavbarProps {
   onNewUpload: () => void;
   onGoHome: () => void;
   theme: 'light' | 'dark';
-  onToggleTheme: () => void;
+  onToggleTheme: (event?: React.MouseEvent) => void;
   soundOn: boolean;
   onToggleSound: () => void;
 }

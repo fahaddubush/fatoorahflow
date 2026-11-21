@@ -42,6 +42,28 @@
   [data-theme='dark'] body { background-image: radial-gradient(1100px 700px at 78% -8%, rgba(255,176,92,.13), transparent 62%); background-attachment: fixed; }
 }
 
+/* Circular theme iris/radius transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: none !important;
+}
+
 @layer base {
   :root {
     --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;

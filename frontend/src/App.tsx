@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import { AnalyticsSummary, DocumentDetail as DocDetailType, DocumentListItem, isActiveProcessing, WorkflowJob } from './types';
 import { fetchAnalytics, fetchDocuments, fetchDocumentDetail } from './api/client';
 import { Navbar } from './components/Navbar';
@@ -17,6 +18,7 @@ import { InkFilters } from './components/Ink';
 import { FolderCurtain } from './components/FolderCurtain';
 import { BootScreen } from './components/BootScreen';
 import { DrawRule, EASE, Magnetic, Marquee, ReadyContext, Rise } from './components/ui';
+import { InfiniteFooter } from './components/InfiniteFooter';
 
 export const App: React.FC = () => {
   const [isRtl, setIsRtl] = useState<boolean>(false);
@@ -62,15 +64,98 @@ export const App: React.FC = () => {
     document.querySelector('meta[name=theme-color]')?.setAttribute('content', theme === 'dark' ? '#19120D' : '#E9E1CF');
   }, [theme]);
 
+  const lenisRef = useRef<Lenis | null>(null);
+
   // Weighted smooth scrolling.
   useEffect(() => {
     if (settings.motion !== 'full' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 0.95 });
+    lenisRef.current = lenis;
     let raf = 0;
     const loop = (time: number) => { lenis.raf(time); raf = requestAnimationFrame(loop); };
     raf = requestAnimationFrame(loop);
-    return () => { cancelAnimationFrame(raf); lenis.destroy(); };
+    return () => {
+      cancelAnimationFrame(raf);
+      lenis.destroy();
+      lenisRef.current = null;
+    };
   }, [settings.motion]);
+
+  const toggleTheme = useCallback((event?: React.MouseEvent) => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    sound.click();
+
+    const doc = typeof document !== 'undefined' ? (document as any) : null;
+    if (
+      !doc ||
+      typeof doc.startViewTransition !== 'function' ||
+      settings.motion !== 'full' ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setTheme(nextTheme);
+      return;
+    }
+
+    let x = event?.clientX;
+    let y = event?.clientY;
+
+    if (typeof x !== 'number' || typeof y !== 'number') {
+      const btn = (event?.currentTarget as HTMLElement) || document.querySelector('[aria-label*="theme"], [aria-label*="الوضع"]');
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        x = rect.left + rect.width / 2;
+        y = rect.top + rect.height / 2;
+      } else {
+        x = window.innerWidth / 2;
+        y = window.innerHeight / 2;
+      }
+    }
+
+    const endRadius = Math.ceil(
+      Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      ) * 1.05
+    );
+
+    document.documentElement.classList.add('theme-transitioning');
+
+    const transition = doc.startViewTransition(() => {
+      flushSync(() => {
+        setTheme(nextTheme);
+        document.documentElement.dataset.theme = nextTheme;
+        document.querySelector('meta[name=theme-color]')?.setAttribute('content', nextTheme === 'dark' ? '#19120D' : '#E9E1CF');
+      });
+    });
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ];
+
+      const anim = document.documentElement.animate(
+        {
+          clipPath,
+        },
+        {
+          duration: 800,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+
+      anim.onfinish = () => {
+        document.documentElement.classList.remove('theme-transitioning');
+      };
+    }).catch(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    });
+
+    transition.finished.finally(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    });
+  }, [theme, settings.motion]);
 
   useEffect(() => { sound.setTheme(dark); }, [dark]);
 
@@ -228,7 +313,7 @@ export const App: React.FC = () => {
   return (
     <ReadyContext.Provider value={ready}>
       <div className="grain relative flex min-h-screen flex-col bg-desk font-sans text-ink">
-        <Navbar isRtl={isRtl} onToggleLanguage={() => setIsRtl(!isRtl)} onNewUpload={() => setIsUploadOpen(true)} onGoHome={handleBackToQueue} theme={theme} onToggleTheme={() => setTheme(dark ? 'light' : 'dark')} soundOn={soundOn} onToggleSound={toggleSound} />
+        <Navbar isRtl={isRtl} onToggleLanguage={() => setIsRtl(!isRtl)} onNewUpload={() => setIsUploadOpen(true)} onGoHome={handleBackToQueue} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
 
         <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 pb-24 pt-8 sm:px-8 sm:pt-12">
           <AnimatePresence mode="wait">
@@ -309,9 +394,18 @@ export const App: React.FC = () => {
           </AnimatePresence>
         </main>
 
-        <footer className="overflow-hidden border-t border-ink/80 pt-8" dir="ltr">
-          <p className="mt-10 select-none whitespace-nowrap text-center font-display text-[clamp(80px,19vw,300px)] leading-[.72] tracking-[-0.03em] text-ink/90">Fatoorah<i className="text-stamp">Flow</i></p>
-        </footer>
+        <InfiniteFooter
+          isRtl={isRtl}
+          reduceMotion={settings.motion !== 'full' || view !== 'dashboard'}
+          loop={view === 'dashboard'}
+          scrollToTop={() => {
+            if (lenisRef.current) {
+              lenisRef.current.scrollTo(0, { immediate: true });
+            } else {
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+            }
+          }}
+        />
 
         <UploadModal
           isOpen={isUploadOpen}
