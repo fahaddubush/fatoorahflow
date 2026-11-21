@@ -33,7 +33,6 @@ export function BootScreen({ onReveal, onDone }: { onReveal: () => void; onDone:
     <div className="grain absolute inset-0 bg-desk">
       <div className="absolute inset-x-0 top-0 flex items-start justify-between px-6 pt-6 sm:px-10 sm:pt-8" dir="ltr">
         <div className="font-display text-[28px] leading-none text-ink">Fatoorah<em className="not-italic text-stamp">/</em><i>Flow</i></div>
-        <div className="label text-end"><span className="block">Ledger no. 0001</span><span className="block" dir="rtl">دفتر الفواتير</span></div>
       </div>
 
       <div className="absolute inset-0 grid place-items-center" dir="ltr">
@@ -75,10 +74,6 @@ export function BootScreen({ onReveal, onDone }: { onReveal: () => void; onDone:
 
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-6 pb-6 sm:px-10 sm:pb-8" dir="ltr">
         <div className="font-display text-[clamp(72px,14vw,168px)] leading-[.8] tracking-tight text-ink tabular-nums">{String(count).padStart(3, '0')}</div>
-        <div className="max-w-[16rem] pb-1 text-end">
-          <p className="label">{LINES[Math.min(LINES.length - 1, Math.floor(count / 26))][0]}</p>
-          <p className="mt-1 font-display text-lg leading-tight text-ink-soft" dir="rtl">{LINES[Math.min(LINES.length - 1, Math.floor(count / 26))][1]}</p>
-        </div>
       </div>
     </div>
   );
@@ -88,7 +83,6 @@ export function BootScreen({ onReveal, onDone }: { onReveal: () => void; onDone:
       {[true, false].map((top) => (
         <motion.div key={String(top)} className="absolute inset-0 overflow-hidden" style={halfStyle(top)} animate={exit(top)} transition={{ duration: 0.95, ease: [0.76, 0, 0.24, 1] }}>
           {Scene}
-          <div className="absolute inset-x-0 top-1/2 h-px bg-ink/20" />
         </motion.div>
       ))}
     </div>

@@ -49,14 +49,22 @@ const N_RECEIPTS = 15;
 
 function Receipt({ i, t, rtl }: { i: number; t: MotionValue<number>; rtl: boolean }) {
   const seed = useMemo(() => {
-    const a = i * 2.399963, R = 24 + ((i * 53) % 34);
-    return { x: Math.cos(a) * R * 0.62, y: Math.sin(a) * R * 0.5, r: ((i * 37) % 40) - 20, spin: ((i * 17) % 30) - 15, ry: ((i * 29) % 36) - 18, stamp: i % 3 === 0, bars: [58, 82, 44, 70, 36].map((w, k) => 30 + ((w + i * 11 + k * 7) % 60)) };
+    const a = i * 2.399963, R = 22 + ((i * 47) % 28);
+    return {
+      x: Math.cos(a) * R * 0.52,
+      y: Math.sin(a) * R * 0.38,
+      r: ((i * 37) % 36) - 18,
+      spin: ((i * 17) % 24) - 12,
+      ry: ((i * 29) % 30) - 15,
+      stamp: i % 3 === 0,
+      bars: [58, 82, 44, 70, 36].map((w, k) => 30 + ((w + i * 11 + k * 7) % 60)),
+    };
   }, [i]);
   const u = useTransform(t, (v) => (((i / N_RECEIPTS + v) % 1) + 1) % 1);
-  const transform = useTransform(u, (k) => `translate3d(${seed.x}vw, ${seed.y}vh, ${-2800 + k * 3300}px) rotateZ(${seed.r + k * seed.spin}deg) rotateY(${seed.ry}deg)`);
-  const opacity = useTransform(u, (k) => (k < 0.1 ? k / 0.1 : k > 0.88 ? Math.max(0, (1 - k) / 0.12) : 1));
+  const transform = useTransform(u, (k) => `translate3d(${seed.x}vw, ${seed.y}vh, ${-2600 + k * 2900}px) rotateZ(${seed.r + k * seed.spin}deg) rotateY(${seed.ry}deg)`);
+  const opacity = useTransform(u, (k) => (k < 0.12 ? k / 0.12 : k > 0.74 ? Math.max(0, (1 - k) / 0.26) : 1));
   return (
-    <motion.div aria-hidden className="edge-zig-bottom absolute left-1/2 top-1/2 h-[230px] w-[150px] bg-paper px-3 pb-8 pt-3 shadow-sheet" style={{ transform, opacity, marginLeft: -75, marginTop: -115, willChange: 'transform, opacity' }}>
+    <motion.div aria-hidden className="edge-zig-bottom absolute left-1/2 top-1/2 h-[220px] w-[145px] bg-paper px-3 pb-8 pt-3 shadow-sheet" style={{ transform, opacity, marginLeft: -72, marginTop: -110, willChange: 'transform, opacity' }}>
       <p className="font-mono text-[8px] uppercase tracking-[.16em] text-ink-mute">{rtl ? 'فاتورة ضريبية' : 'Tax invoice'}</p>
       <div className="my-1.5 h-px bg-ink/70" />
       <p className="font-mono text-[8px] text-ink-soft" dir="ltr">INV-2026-{String(100 + i * 7).padStart(5, '0')}</p>
@@ -171,7 +179,7 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
   /* ---------- still footer for reduced motion ---------- */
   if (reduce) {
     return (
-      <footer aria-label={t('Page footer', 'تذييل الصفحة')} className={`border-t border-ink/80 px-4 pb-12 pt-12 sm:px-8 ${className ?? ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
+      <footer aria-label={t('Page footer', 'تذييل الصفحة')} className={`px-4 pb-12 pt-12 sm:px-8 ${className ?? ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
         <p className="select-none whitespace-nowrap text-center font-display text-[clamp(64px,15vw,240px)] leading-[.8] tracking-[-0.03em] text-ink" dir="ltr" aria-hidden>Fatoorah<i className="text-stamp">Flow</i></p>
       </footer>
     );
@@ -180,9 +188,21 @@ export function InfiniteFooter({ isRtl = false, reduceMotion, loop = true, scrol
   return (
     <>
       <footer ref={root} aria-label={t('Page footer', 'تذييل الصفحة')} className={`relative ${className ?? ''}`} style={{ height: loop ? '360vh' : '220vh' }} dir={isRtl ? 'rtl' : 'ltr'}>
-        <div className="sticky top-0 h-screen overflow-hidden border-t border-ink/80" onPointerMove={onMove}>
+        <div className="sticky top-0 h-screen overflow-hidden" onPointerMove={onMove}>
           {/* receipt tunnel */}
-          <motion.div aria-hidden className="absolute inset-0" style={{ perspective: 800, rotateY: rotY, rotateX: rotX, transformStyle: 'preserve-3d', opacity: wordFade }}>
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              perspective: 800,
+              rotateY: rotY,
+              rotateX: rotX,
+              transformStyle: 'preserve-3d',
+              opacity: wordFade,
+              maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 16%, rgba(0,0,0,1) 84%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 16%, rgba(0,0,0,1) 84%, transparent 100%)',
+            }}
+          >
             {Array.from({ length: N_RECEIPTS }, (_, i) => <Receipt key={i} i={i} t={tunnel} rtl={isRtl} />)}
           </motion.div>
 
