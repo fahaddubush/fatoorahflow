@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FatoorahFlow — Paperclip Asset Inspection Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-desk: #E9E1CF;
+      --c-paper: #FBF8F0;
+      --c-ink: #15120E;
+      --c-ink-soft: #3A342B;
+      --c-ink-mute: #7A7160;
+      --c-stamp: #D2391E;
+      --c-manila: #D9B26A;
+      --c-manila-dark: #B98E43;
+      --card-bg: #FFFFFF;
+      --card-border: rgba(21, 18, 14, 0.12);
+    }
+
+    [data-theme="dark"] {
+      --c-desk: #19120D;
+      --c-paper: #221A14;
+      --c-ink: #EEE4CD;
+      --c-ink-soft: #CBBFA4;
+      --c-ink-mute: #9C8F79;
+      --c-stamp: #E84E34;
+      --c-manila: #B88E3E;
+      --c-manila-dark: #7E5E26;
+      --card-bg: #211913;
+      --card-border: rgba(238, 228, 205, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      background-color: var(--c-desk);
+      color: var(--c-ink);
+      min-height: 100vh;
+      padding: 40px 24px 80px;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 36px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 24px;
+    }
+
+    h1 {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: clamp(38px, 5vw, 56px);
+      font-weight: 400;
+      line-height: 1;
+    }
+    h1 i { color: var(--c-stamp); }
+
+    .subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--c-ink-mute);
+      margin-top: 8px;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--c-ink);
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px -10px rgba(0,0,0,0.08);
+      display: flex;
+      flex-col;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.14);
+    }
+
+    .preview-box {
+      height: 280px;
+      position: relative;
+      background: repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0, rgba(0,0,0,0.02) 10px, transparent 10px, transparent 20deg);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .mock-receipt {
+      width: 190px;
+      height: 220px;
+      background: #FAF7F0;
+      color: #15120E;
+      border-radius: 4px;
+      padding: 16px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      box-shadow: 0 10px 25px -8px rgba(0,0,0,0.3);
+      position: relative;
+      border-bottom: 4px solid #FAF7F0;
+    }
+
+    .mock-receipt .rule {
+      height: 1px;
+      background: rgba(21,18,14,0.6);
+      margin: 8px 0;
+    }
+    .mock-receipt .bar {
+      height: 4px;
+      background: rgba(21,18,14,0.15);
+      margin-top: 6px;
+    }
+
+    .clip-wrapper {
+      position: absolute;
+      top: -16px;
+      right: 18px;
+      z-index: 10;
+      filter: drop-shadow(2px 6px 8px rgba(0,0,0,0.35));
+    }
+
+    .clip-wrapper img, .clip-wrapper svg {
+      display: block;
+      width: 44px;
+      height: auto;
+      transform: rotate(6deg);
+    }
+
+    .card-info {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid var(--card-border);
+      flex: 1;
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--c-stamp);
+      font-weight: 600;
+    }
+
+    .title {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--c-ink);
+    }
+
+    .desc {
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--c-ink-soft);
+      flex: 1;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      border: 1px solid var(--card-border);
+      background: var(--c-desk);
+      color: var(--c-ink);
+      font-weight: 500;
+    }
+    .btn:hover {
+      background: var(--c-ink);
+      color: var(--c-desk);
+    }
+
+    .btn-primary {
+      background: var(--c-ink);
+      color: var(--c-desk);
+      border-color: var(--c-ink);
+    }
+    .btn-primary:hover {
+      background: var(--c-stamp);
+      border-color: var(--c-stamp);
+      color: #FFF;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Paperclip <i>Assets</i> Inspector</h1>
+      <p class="subtitle">FatoorahFlow · Physical Stationery Design System</p>
+    </div>
+    <div>
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span> <span id="theme-label">Switch to Night Desk</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1. Gunmetal Steel (Dark Mode Favorite) -->
+    <div class="card">
+      <div class="preview-box">
+        <div class="mock-receipt">
+          <div class="clip-wrapper">
+            <img src="/paperclip-gunmetal-steel.png" alt="Gunmetal Steel Paperclip" style="width: 48px;">
+          </div>
+          <div style="font-size: 8px; color: #7A7160;">TAX INVOICE</div>
+          <div class="rule"></div>
+          <div style="font-weight: 600;">INV-2026-0042</div>
+          <div class="bar" style="width: 70%;"></div>
+          <div class="bar" style="width: 50%;"></div>
+          <div class="bar" style="width: 85%;"></div>
+          <div class="rule" style="margin-top: 24px;"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>TOTAL</span>
+            <span>SAR 4,820.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <span class="tag">Recommended for Dark Mode</span>
+        <h2 class="title">Gunmetal Oxidized Steel</h2>
+        <p class="desc">Sleek industrial dark metallic wire with subtle cool specular edge reflections and soft contact shadow. Perfect contrast on light paper against dark leather desks.</p>
+        <div class="actions">
+          <a href="/paperclip-gunmetal-steel.png" target="_blank" class="btn btn-primary">Inspect PNG</a>
+          <a href="/paperclip-dark-nickel.svg" target="_blank" class="btn">Vector SVG</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Vintage Brushed Brass (Light Mode Favorite) -->
+    <div class="card">
+      <div class="preview-box">
+        <div class="mock-receipt">
+          <div class="clip-wrapper">
+            <img src="/paperclip-vintage-brass.png" alt="Vintage Brass Paperclip" style="width: 46px;">
+          </div>
+          <div style="font-size: 8px; color: #7A7160;">TAX INVOICE</div>
+          <div class="rule"></div>
+          <div style="font-weight: 600;">INV-2026-0089</div>
+          <div class="bar" style="width: 65%;"></div>
+          <div class="bar" style="width: 45%;"></div>
+          <div class="bar" style="width: 75%;"></div>
+          <div class="rule" style="margin-top: 24px;"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>TOTAL</span>
+            <span>SAR 1,250.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <span class="tag">Recommended for Light Mode</span>
+        <h2 class="title">Vintage Brushed Brass</h2>
+        <p class="desc">Warm golden brushed brass with rich tactile patina, micro-scratches, and realistic cylindrical highlights. Matches the manila folder and desk aesthetic.</p>
+        <div class="actions">
+          <a href="/paperclip-vintage-brass.png" target="_blank" class="btn btn-primary">Inspect PNG</a>
+          <a href="/paperclip.svg" target="_blank" class="btn">Vector SVG</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Geometric Triangular Brass (Midori Style) -->
+    <div class="card">
+      <div class="preview-box">
+        <div class="mock-receipt">
+          <div class="clip-wrapper" style="top: -12px; right: 20px;">
+            <img src="/paperclip-geometric-brass.png" alt="Geometric Brass Paperclip" style="width: 46px;">
+          </div>
+          <div style="font-size: 8px; color: #7A7160;">TAX INVOICE</div>
+          <div class="rule"></div>
+          <div style="font-weight: 600;">INV-2026-0104</div>
+          <div class="bar" style="width: 60%;"></div>
+          <div class="bar" style="width: 40%;"></div>
+          <div class="bar" style="width: 80%;"></div>
+          <div class="rule" style="margin-top: 24px;"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>TOTAL</span>
+            <span>SAR 7,390.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <span class="tag">Designer Architectural Clip</span>
+        <h2 class="title">Midori Triangular Brass</h2>
+        <p class="desc">Inspired by vintage Japanese architectural stationery clips. Triangular outer frame with inner clasp for a distinct editorial silhouette.</p>
+        <div class="actions">
+          <a href="/paperclip-geometric-brass.png" target="_blank" class="btn btn-primary">Inspect PNG</a>
+          <a href="/paperclip-triangular-brass.svg" target="_blank" class="btn">Vector SVG</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Antique Rose Copper -->
+    <div class="card">
+      <div class="preview-box">
+        <div class="mock-receipt">
+          <div class="clip-wrapper">
+            <img src="/paperclip-antique-copper.png" alt="Antique Copper Paperclip" style="width: 50px;">
+          </div>
+          <div style="font-size: 8px; color: #7A7160;">TAX INVOICE</div>
+          <div class="rule"></div>
+          <div style="font-weight: 600;">INV-2026-0158</div>
+          <div class="bar" style="width: 75%;"></div>
+          <div class="bar" style="width: 55%;"></div>
+          <div class="bar" style="width: 65%;"></div>
+          <div class="rule" style="margin-top: 24px;"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>TOTAL</span>
+            <span>SAR 3,110.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <span class="tag">Artisanal Metal</span>
+        <h2 class="title">Antique Rose-Copper</h2>
+        <p class="desc">Warm reddish-copper wire with rose-bronze reflections. Adds an artisanal, craft-paper vibe that pairs naturally with red stamp inks.</p>
+        <div class="actions">
+          <a href="/paperclip-antique-copper.png" target="_blank" class="btn btn-primary">Inspect PNG</a>
+          <a href="/paperclip-antique-copper.jpg" target="_blank" class="btn">Full Studio JPG</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Classic Polished Brass Gem -->
+    <div class="card">
+      <div class="preview-box">
+        <div class="mock-receipt">
+          <div class="clip-wrapper">
+            <img src="/paperclip-classic-brass.png" alt="Classic Brass Gem" style="width: 44px;">
+          </div>
+          <div style="font-size: 8px; color: #7A7160;">TAX INVOICE</div>
+          <div class="rule"></div>
+          <div style="font-weight: 600;">INV-2026-0211</div>
+          <div class="bar" style="width: 70%;"></div>
+          <div class="bar" style="width: 50%;"></div>
+          <div class="bar" style="width: 60%;"></div>
+          <div class="rule" style="margin-top: 24px;"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>TOTAL</span>
+            <span>SAR 940.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <span class="tag">Classic Clean Brass</span>
+        <h2 class="title">Polished Brass Gem</h2>
+        <p class="desc">Crisp, clean-cut standard Gem wire paperclip in polished brass with soft studio contact shadow. Balanced, subtle, and understated.</p>
+        <div class="actions">
+          <a href="/paperclip-classic-brass.png" target="_blank" class="btn btn-primary">Inspect PNG</a>
+          <a href="/paperclip.svg" target="_blank" class="btn">Vector SVG</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Teardrop / Pear Brass -->
+    <div class="card">
+      <div class="preview-box">
+        <div class="mock-receipt">
+          <div class="clip-wrapper" style="top: -14px; right: 20px;">
+            <img src="/paperclip-teardrop-brass.png" alt="Teardrop Brass Paperclip" style="width: 46px;">
+          </div>
+          <div style="font-size: 8px; color: #7A7160;">TAX INVOICE</div>
+          <div class="rule"></div>
+          <div style="font-weight: 600;">INV-2026-0305</div>
+          <div class="bar" style="width: 80%;"></div>
+          <div class="bar" style="width: 45%;"></div>
+          <div class="bar" style="width: 70%;"></div>
+          <div class="rule" style="margin-top: 24px;"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600;">
+            <span>TOTAL</span>
+            <span>SAR 6,430.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <span class="tag">Vintage European Style</span>
+        <h2 class="title">Teardrop / Pear Brass</h2>
+        <p class="desc">Aesthetic pear-shaped vintage brass wire clip with gentle curves and subtle golden reflections. Elegant and distinctive for landing hero presentation.</p>
+        <div class="actions">
+          <a href="/paperclip-teardrop-brass.png" target="_blank" class="btn btn-primary">Inspect PNG</a>
+          <a href="/paperclip-teardrop-brass.jpg" target="_blank" class="btn">Full Studio JPG</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      document.getElementById('theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = next === 'dark' ? 'Switch to Day Desk' : 'Switch to Night Desk';
+    }
+  </script>
+</body>
+</html>
